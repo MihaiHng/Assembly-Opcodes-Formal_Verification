@@ -1,0 +1,6 @@
+[submodule "lib/huffmate"]
+	path = lib/huffmate
+	url = https://github.com/huff-language/huffmate
+[submodule "1-horse-store-s23/lib/huffmate"]
+	path = 1-horse-store-s23/lib/huffmate
+	url = https://github.com/huff-language/huffmate
