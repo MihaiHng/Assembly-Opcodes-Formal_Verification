@@ -1,24 +1,23 @@
 /*
  * Certora Formal Verification Spec for NftMock
- */ 
+ */
 
 using NftMock as nft;
 
-
 methods {
     function mint() external; // This isn't env free because this will block ETH sent with this call. 
-    function totalSupply() external returns(uint256) envfree ; // This is envfree because it's a view function, and the env doesn't matter
-    function balanceOf(address) external returns(uint) envfree;
+    function totalSupply() external returns (uint256) envfree; // This is envfree because it's a view function, and the env doesn't matter
+    function balanceOf(address) external returns (uint) envfree;
 }
 
 // Invariant 
 // In order for this to pass, we need our conf to accept trivial invariant checks... but we don't want trivial invariant checks! 
-invariant totalSupplyIsNotNegative() // trivial invariant check failed post-state assertion is trivially true
-    totalSupply() >= 0;
+invariant totalSupplyIsNotNegative()
+    totalSupply() >= 0; // trivial invariant check failed post-state assertion is trivially true
 
 rule minting_mints_one_nft() {
     // Arrange
-    env e; 
+    env e;
     address minter;
 
     require e.msg.value == 0;
@@ -29,7 +28,8 @@ rule minting_mints_one_nft() {
     mathint balanceBefore = nft.balanceOf(minter);
 
     // Act 
-    currentContract.mint(e); 
+    currentContract.mint(e);
+
     // We could also do `nft.mint(e)` 
     // or just `mint(e)` 
 
@@ -40,7 +40,7 @@ rule minting_mints_one_nft() {
 // This is known as a parametric rule, as there is a variable of type "method", which we named `f`
 // This means, we call any random function `f` with any random calldata `arg` 
 // We can also say which contracts we want to call f on, in this case, we said the nft contract
-rule sanity {
+rule sanity() {
     env e;
     calldataarg arg;
     method f;

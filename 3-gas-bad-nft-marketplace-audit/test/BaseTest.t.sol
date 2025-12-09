@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity ^0.8.20;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {NftMarketplace} from "src/NftMarketplace.sol";
@@ -13,10 +13,29 @@ abstract contract BaseTest is Test {
     uint256 public constant STARTING_TOKEN_ID = 0;
     address public basicSeller = makeAddr("basicSeller");
 
-    event ItemListed(address indexed seller, address indexed nftAddress, uint256 indexed tokenId, uint256 price);
-    event ItemUpdated(address indexed seller, address indexed nftAddress, uint256 indexed tokenId, uint256 price);
-    event ItemCanceled(address indexed seller, address indexed nftAddress, uint256 indexed tokenId);
-    event ItemBought(address indexed buyer, address indexed nftAddress, uint256 indexed tokenId, uint256 price);
+    event ItemListed(
+        address indexed seller,
+        address indexed nftAddress,
+        uint256 indexed tokenId,
+        uint256 price
+    );
+    event ItemUpdated(
+        address indexed seller,
+        address indexed nftAddress,
+        uint256 indexed tokenId,
+        uint256 price
+    );
+    event ItemCanceled(
+        address indexed seller,
+        address indexed nftAddress,
+        uint256 indexed tokenId
+    );
+    event ItemBought(
+        address indexed buyer,
+        address indexed nftAddress,
+        uint256 indexed tokenId,
+        uint256 price
+    );
 
     function setUp() public virtual {
         nftMarketplace = new NftMarketplace();
@@ -36,8 +55,18 @@ abstract contract BaseTest is Test {
         vm.prank(seller);
         nftMarketplace.listItem(address(nftMock), STARTING_TOKEN_ID, price);
 
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).price, price);
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).seller, seller);
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .price,
+            price
+        );
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .seller,
+            seller
+        );
     }
 
     function testRevertsWithZeroPrice(address seller) public {
@@ -48,7 +77,9 @@ abstract contract BaseTest is Test {
         _giveAndApproveNft(seller, STARTING_TOKEN_ID);
 
         vm.prank(seller);
-        vm.expectRevert(NftMarketplace.NftMarketplace__PriceMustBeAboveZero.selector);
+        vm.expectRevert(
+            NftMarketplace.NftMarketplace__PriceMustBeAboveZero.selector
+        );
         nftMarketplace.listItem(address(nftMock), STARTING_TOKEN_ID, price);
     }
 
@@ -92,12 +123,26 @@ abstract contract BaseTest is Test {
         vm.prank(seller);
         nftMarketplace.cancelListing(address(nftMock), STARTING_TOKEN_ID);
 
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).price, 0);
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).seller, address(0));
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .price,
+            0
+        );
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .seller,
+            address(0)
+        );
         assertEq(nftMock.ownerOf(STARTING_TOKEN_ID), seller);
     }
 
-    function testOnlySellerCanCanel(address seller, uint256 price, address fakeSeller) public {
+    function testOnlySellerCanCanel(
+        address seller,
+        uint256 price,
+        address fakeSeller
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(seller.code.length == 0);
         vm.assume(price > 0);
@@ -129,7 +174,11 @@ abstract contract BaseTest is Test {
     /*//////////////////////////////////////////////////////////////
                              UPDATE LISTING
     //////////////////////////////////////////////////////////////*/
-    function testUpdateListing(address seller, uint256 price, uint256 newAmount) public {
+    function testUpdateListing(
+        address seller,
+        uint256 price,
+        uint256 newAmount
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(seller.code.length == 0);
         vm.assume(price > 0);
@@ -138,14 +187,26 @@ abstract contract BaseTest is Test {
         _giveListing(seller, STARTING_TOKEN_ID, price);
 
         vm.prank(seller);
-        nftMarketplace.updateListing(address(nftMock), STARTING_TOKEN_ID, newAmount);
+        nftMarketplace.updateListing(
+            address(nftMock),
+            STARTING_TOKEN_ID,
+            newAmount
+        );
 
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).price, newAmount);
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .price,
+            newAmount
+        );
     }
 
-    function testOnlySellerCanUpdateListing(address seller, uint256 price, uint256 newAmount, address fakeSeller)
-        public
-    {
+    function testOnlySellerCanUpdateListing(
+        address seller,
+        uint256 price,
+        uint256 newAmount,
+        address fakeSeller
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(seller.code.length == 0);
         vm.assume(price > 0);
@@ -155,10 +216,17 @@ abstract contract BaseTest is Test {
 
         vm.expectRevert(NftMarketplace.NftMarketplace__NotOwner.selector);
         vm.prank(fakeSeller);
-        nftMarketplace.updateListing(address(nftMock), STARTING_TOKEN_ID, newAmount);
+        nftMarketplace.updateListing(
+            address(nftMock),
+            STARTING_TOKEN_ID,
+            newAmount
+        );
     }
 
-    function testUpdateListingMustBeAboveZero(address seller, uint256 price) public {
+    function testUpdateListingMustBeAboveZero(
+        address seller,
+        uint256 price
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(seller.code.length == 0);
         vm.assume(price > 0);
@@ -167,11 +235,21 @@ abstract contract BaseTest is Test {
         _giveListing(seller, STARTING_TOKEN_ID, price);
 
         vm.prank(seller);
-        vm.expectRevert(NftMarketplace.NftMarketplace__PriceMustBeAboveZero.selector);
-        nftMarketplace.updateListing(address(nftMock), STARTING_TOKEN_ID, newAmount);
+        vm.expectRevert(
+            NftMarketplace.NftMarketplace__PriceMustBeAboveZero.selector
+        );
+        nftMarketplace.updateListing(
+            address(nftMock),
+            STARTING_TOKEN_ID,
+            newAmount
+        );
     }
 
-    function testUpdateListingEmitsEvent(address seller, uint256 price, uint256 newAmount) public {
+    function testUpdateListingEmitsEvent(
+        address seller,
+        uint256 price,
+        uint256 newAmount
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(seller.code.length == 0);
         vm.assume(price > 0);
@@ -181,8 +259,17 @@ abstract contract BaseTest is Test {
 
         vm.prank(seller);
         vm.expectEmit(true, true, true, true, address(nftMarketplace));
-        emit ItemUpdated(seller, address(nftMock), STARTING_TOKEN_ID, newAmount);
-        nftMarketplace.updateListing(address(nftMock), STARTING_TOKEN_ID, newAmount);
+        emit ItemUpdated(
+            seller,
+            address(nftMock),
+            STARTING_TOKEN_ID,
+            newAmount
+        );
+        nftMarketplace.updateListing(
+            address(nftMock),
+            STARTING_TOKEN_ID,
+            newAmount
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -199,18 +286,35 @@ abstract contract BaseTest is Test {
 
         vm.deal(buyer, price);
         vm.prank(buyer);
-        nftMarketplace.buyItem{value: price}(address(nftMock), STARTING_TOKEN_ID);
+        nftMarketplace.buyItem{value: price}(
+            address(nftMock),
+            STARTING_TOKEN_ID
+        );
 
         assertEq(nftMock.ownerOf(STARTING_TOKEN_ID), buyer);
         // We also test the listing is removed from the mapping
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).price, 0);
-        assertEq(nftMarketplace.getListing(address(nftMock), STARTING_TOKEN_ID).seller, address(0));
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .price,
+            0
+        );
+        assertEq(
+            nftMarketplace
+                .getListing(address(nftMock), STARTING_TOKEN_ID)
+                .seller,
+            address(0)
+        );
 
         // We also test the proceeds here, cuz we are lazy
         assertEq(nftMarketplace.getProceeds(seller), price);
     }
 
-    function testBuyItemRevertsWhenBadTokenId(address seller, uint256 price, address buyer) public {
+    function testBuyItemRevertsWhenBadTokenId(
+        address seller,
+        uint256 price,
+        address buyer
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(buyer != address(0));
         vm.assume(seller.code.length == 0);
@@ -224,13 +328,21 @@ abstract contract BaseTest is Test {
         vm.deal(buyer, price);
         vm.prank(buyer);
         vm.expectRevert(
-            abi.encodeWithSelector(NftMarketplace.NftMarketplace__NotListed.selector, address(nftMock), badTokenId)
+            abi.encodeWithSelector(
+                NftMarketplace.NftMarketplace__NotListed.selector,
+                address(nftMock),
+                badTokenId
+            )
         );
 
         nftMarketplace.buyItem{value: price}(address(nftMock), badTokenId);
     }
 
-    function testBuyItemEmitsEvent(address seller, uint256 price, address buyer) public {
+    function testBuyItemEmitsEvent(
+        address seller,
+        uint256 price,
+        address buyer
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(buyer != address(0));
         vm.assume(seller.code.length == 0);
@@ -243,10 +355,17 @@ abstract contract BaseTest is Test {
         vm.prank(buyer);
         vm.expectEmit(true, true, true, true, address(nftMarketplace));
         emit ItemBought(buyer, address(nftMock), STARTING_TOKEN_ID, price);
-        nftMarketplace.buyItem{value: price}(address(nftMock), STARTING_TOKEN_ID);
+        nftMarketplace.buyItem{value: price}(
+            address(nftMock),
+            STARTING_TOKEN_ID
+        );
     }
 
-    function testBuyItemRevertsWhenPriceNotMet(address seller, uint256 price, address buyer) public {
+    function testBuyItemRevertsWhenPriceNotMet(
+        address seller,
+        uint256 price,
+        address buyer
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(buyer != address(0));
         vm.assume(seller.code.length == 0);
@@ -261,16 +380,26 @@ abstract contract BaseTest is Test {
         vm.prank(buyer);
         vm.expectRevert(
             abi.encodeWithSelector(
-                NftMarketplace.NftMarketplace__PriceNotMet.selector, address(nftMock), STARTING_TOKEN_ID, price
+                NftMarketplace.NftMarketplace__PriceNotMet.selector,
+                address(nftMock),
+                STARTING_TOKEN_ID,
+                price
             )
         );
-        nftMarketplace.buyItem{value: badPrice}(address(nftMock), STARTING_TOKEN_ID);
+        nftMarketplace.buyItem{value: badPrice}(
+            address(nftMock),
+            STARTING_TOKEN_ID
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
                            WITHDRAW PROCEEDS
     //////////////////////////////////////////////////////////////*/
-    function testWithdrawProceeds(address seller, uint256 price, address buyer) public {
+    function testWithdrawProceeds(
+        address seller,
+        uint256 price,
+        address buyer
+    ) public {
         vm.assume(seller != address(0));
         vm.assume(buyer != address(0));
         vm.assume(seller.code.length == 0);
@@ -285,7 +414,10 @@ abstract contract BaseTest is Test {
 
         vm.deal(buyer, price);
         vm.prank(buyer);
-        nftMarketplace.buyItem{value: price}(address(nftMock), STARTING_TOKEN_ID);
+        nftMarketplace.buyItem{value: price}(
+            address(nftMock),
+            STARTING_TOKEN_ID
+        );
 
         vm.prank(seller);
         nftMarketplace.withdrawProceeds();
@@ -306,9 +438,15 @@ abstract contract BaseTest is Test {
     /*//////////////////////////////////////////////////////////////
                             ONERC721RECEIVED
     //////////////////////////////////////////////////////////////*/
-    function testOnERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) public {
+    function testOnERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) public {
         assertEq(
-            nftMarketplace.onERC721Received(operator, from, tokenId, data), NftMarketplace.onERC721Received.selector
+            nftMarketplace.onERC721Received(operator, from, tokenId, data),
+            NftMarketplace.onERC721Received.selector
         );
     }
 
@@ -322,10 +460,11 @@ abstract contract BaseTest is Test {
         vm.stopPrank();
     }
 
-    function _giveListing(address to, uint256 tokenId, uint256 price)
-        internal
-        returns (NftMarketplace.Listing memory)
-    {
+    function _giveListing(
+        address to,
+        uint256 tokenId,
+        uint256 price
+    ) internal returns (NftMarketplace.Listing memory) {
         _giveAndApproveNft(to, tokenId);
         vm.prank(to);
         nftMarketplace.listItem(address(nftMock), STARTING_TOKEN_ID, price);
