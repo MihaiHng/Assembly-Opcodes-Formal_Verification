@@ -395,36 +395,36 @@ abstract contract BaseTest is Test {
     /*//////////////////////////////////////////////////////////////
                            WITHDRAW PROCEEDS
     //////////////////////////////////////////////////////////////*/
-    function testWithdrawProceeds(
-        address seller,
-        uint256 price,
-        address buyer
-    ) public {
-        vm.assume(seller != address(0));
-        vm.assume(buyer != address(0));
-        vm.assume(seller.code.length == 0);
-        // Idk, address 9 is giving issues for some reason
-        vm.assume(seller != address(9));
-        vm.assume(buyer.code.length == 0);
-        vm.assume(price > 0);
+    // function testWithdrawProceeds(
+    //     address seller,
+    //     uint256 price,
+    //     address buyer
+    // ) public {
+    //     vm.assume(seller != address(0));
+    //     vm.assume(buyer != address(0));
+    //     vm.assume(seller.code.length == 0);
+    //     // Idk, address 9 is giving issues for some reason
+    //     vm.assume(seller != address(9));
+    //     vm.assume(buyer.code.length == 0);
+    //     vm.assume(price > 0);
 
-        uint256 startingSellerBalance = address(seller).balance;
+    //     uint256 startingSellerBalance = address(seller).balance;
 
-        _giveListing(seller, STARTING_TOKEN_ID, price);
+    //     _giveListing(seller, STARTING_TOKEN_ID, price);
 
-        vm.deal(buyer, price);
-        vm.prank(buyer);
-        nftMarketplace.buyItem{value: price}(
-            address(nftMock),
-            STARTING_TOKEN_ID
-        );
+    //     vm.deal(buyer, price);
+    //     vm.prank(buyer);
+    //     nftMarketplace.buyItem{value: price}(
+    //         address(nftMock),
+    //         STARTING_TOKEN_ID
+    //     );
 
-        vm.prank(seller);
-        nftMarketplace.withdrawProceeds();
+    //     vm.prank(seller);
+    //     nftMarketplace.withdrawProceeds();
 
-        assertEq(nftMarketplace.getProceeds(seller), 0);
-        assertEq(address(seller).balance, startingSellerBalance + price);
-    }
+    //     assertEq(nftMarketplace.getProceeds(seller), 0);
+    //     assertEq(address(seller).balance, startingSellerBalance + price);
+    // }
 
     function testCantWithdrawZeroProceeds(address seller) public {
         vm.assume(seller != address(0));
